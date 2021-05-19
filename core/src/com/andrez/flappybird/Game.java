@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.Random;
+
 import javax.xml.soap.Text;
 
 public class Game extends ApplicationAdapter {
@@ -22,7 +24,9 @@ public class Game extends ApplicationAdapter {
 	private float gravity = 0;
 	private float initialPositionBird = 0;
 	private float positionPipeHorizontal;
+	private float positionPipeVertical;
 	private float spaceBetweenPipes;
+	private Random random;
 
 	@Override
 	public void create () {
@@ -40,14 +44,21 @@ public class Game extends ApplicationAdapter {
 		batch.begin();
 
 		batch.draw(background, 0, 0, widthDevice, heightDevice);
-		batch.draw(birds[(int) variation], 30, initialPositionBird);
-		batch.draw(lowBarrel, positionPipeHorizontal - 100, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2));
-		batch.draw(upBarrel, positionPipeHorizontal - 100, (heightDevice / 2  + spaceBetweenPipes / 2));
+		batch.draw(birds[(int) variation], 90, initialPositionBird);
+		batch.draw(lowBarrel, positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical));
+		batch.draw(upBarrel, positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical));
 
 		batch.end();
 	}
 
 	private void validateStateGame(){
+
+		positionPipeHorizontal -= Gdx.graphics.getDeltaTime() * 200;
+		if(positionPipeHorizontal < -lowBarrel.getWidth()){
+			positionPipeHorizontal = widthDevice;
+			positionPipeVertical = random.nextInt(800) -200;
+		}
+
 		if(Gdx.input.justTouched()) gravity = -20;
 
 		if(initialPositionBird >= 0 || gravity < 0) initialPositionBird = initialPositionBird - gravity;
@@ -73,12 +84,14 @@ public class Game extends ApplicationAdapter {
 	}
 
 	private void startObjects(){
+		random = new Random();
+
 		widthDevice = Gdx.graphics.getWidth();
 		heightDevice = Gdx.graphics.getHeight();
 		initialPositionBird = heightDevice / 2;
 		positionPipeHorizontal = widthDevice;
 
-		spaceBetweenPipes = 400;
+		spaceBetweenPipes = 250;
 	}
 	
 	@Override
