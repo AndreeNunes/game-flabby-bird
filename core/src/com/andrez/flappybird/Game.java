@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -86,16 +87,28 @@ public class Game extends ApplicationAdapter {
 	}
 
 	private void detectarColisoes(){
-		//circleBird
-		//rectangleDown
-		//rectangleUp
+		circleBird.set(widthDevice / 5 + birds[0].getWidth() / 2, initialPositionBird + birds[0].getHeight() / 2, birds[0].getWidth() / 2);
+		rectangleDown.set(positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical), lowBarrel.getWidth(), lowBarrel.getHeight());
+		rectangleUp.set(positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical), upBarrel.getWidth(), upBarrel.getHeight());
 
+		boolean collisionPipeUp = Intersector.overlaps(circleBird, rectangleUp);
+		boolean collisionPipeDown = Intersector.overlaps(circleBird, rectangleDown);
 
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		if(collisionPipeUp || collisionPipeDown){
+			
+		}
+
+		/*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.setColor(Color.RED);
-		shapeRenderer.circle(widthDevice / 5, initialPositionBird, birds[0].getWidth() / 2);
+		shapeRenderer.circle(widthDevice / 5 + birds[0].getWidth() / 2, initialPositionBird + birds[0].getHeight() / 2, birds[0].getWidth() / 2);
 
-		shapeRenderer.end();
+
+		// upBarrel, positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical)
+		shapeRenderer.rect(positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical), lowBarrel.getWidth(), lowBarrel.getHeight());
+
+		shapeRenderer.rect(positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical), upBarrel.getWidth(), upBarrel.getHeight());
+
+		shapeRenderer.end();*/
 	}
 
 	private void validatePoint(){
