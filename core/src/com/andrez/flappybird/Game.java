@@ -23,6 +23,7 @@ public class Game extends ApplicationAdapter {
 	private Texture background;
 	private Texture lowBarrel;
 	private Texture upBarrel;
+	private Texture gameOver;
 
 	private ShapeRenderer shapeRenderer;
 	private Circle circleBird;
@@ -39,6 +40,8 @@ public class Game extends ApplicationAdapter {
 	private float spaceBetweenPipes;
 	private Random random;
 	BitmapFont pointText;
+	BitmapFont textRestart;
+	BitmapFont textBestPoint;
 	private int point = 0;
 	private boolean passedPipe = false;
 
@@ -66,6 +69,13 @@ public class Game extends ApplicationAdapter {
 		batch.draw(lowBarrel, positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical));
 		batch.draw(upBarrel, positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical));
 		pointText.draw(batch, String.valueOf(point), widthDevice / 2, heightDevice - 110);
+
+		if(stateGame == 2){
+			batch.draw(gameOver, widthDevice / 2 - gameOver.getWidth() / 2, heightDevice / 2);
+			textRestart.draw(batch, "Toque para reiniciar", widthDevice / 2 - 140, heightDevice / 2 -  gameOver.getHeight() / 2);
+			textBestPoint.draw(batch, "Seu record é: 0 pontos", widthDevice / 2 - 140, heightDevice / 2 -  gameOver.getHeight());
+		}
+
 		batch.end();
 	}
 
@@ -92,7 +102,7 @@ public class Game extends ApplicationAdapter {
 			gravity++;
 
 		} else if (stateGame == 2){
-			
+
 		}
 
 
@@ -148,6 +158,8 @@ public class Game extends ApplicationAdapter {
 
 		lowBarrel = new Texture("cano_baixo_maior.png");
 		upBarrel = new Texture("cano_topo_maior.png");
+
+		gameOver = new Texture("game_over.png");
 	}
 
 	private void startObjects(){
@@ -169,6 +181,13 @@ public class Game extends ApplicationAdapter {
 		rectangleUp = new Rectangle();
 		rectangleDown = new Rectangle();
 
+		textRestart = new BitmapFont();
+		textRestart.setColor(Color.GREEN);
+		textRestart.getData().setScale(2);
+
+		textBestPoint = new BitmapFont();
+		textBestPoint.setColor(Color.RED);
+		textBestPoint.getData().setScale(2);
 	}
 	
 	@Override
