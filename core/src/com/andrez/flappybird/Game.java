@@ -2,6 +2,7 @@ package com.andrez.flappybird;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -44,6 +45,7 @@ public class Game extends ApplicationAdapter {
 	BitmapFont textRestart;
 	BitmapFont textBestPoint;
 	private int point = 0;
+	private int pointMax = 0;
 	private boolean passedPipe = false;
 
 	private int stateGame = 0;
@@ -51,6 +53,10 @@ public class Game extends ApplicationAdapter {
 	Sound soundFly;
 	Sound soundColisition;
 	Sound soundPoint;
+
+	private float positionHorizontalBird = 0;
+
+	Preferences preferences;
 
 	@Override
 	public void create () {
@@ -70,7 +76,7 @@ public class Game extends ApplicationAdapter {
 		batch.begin();
 
 		batch.draw(background, 0, 0, widthDevice, heightDevice);
-		batch.draw(birds[(int) variation], widthDevice / 5, initialPositionBird);
+		batch.draw(birds[(int) variation], 100 + positionHorizontalBird, initialPositionBird);
 		batch.draw(lowBarrel, positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical));
 		batch.draw(upBarrel, positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical));
 		pointText.draw(batch, String.valueOf(point), widthDevice / 2, heightDevice - 110);
@@ -78,7 +84,7 @@ public class Game extends ApplicationAdapter {
 		if(stateGame == 2){
 			batch.draw(gameOver, widthDevice / 2 - gameOver.getWidth() / 2, heightDevice / 2);
 			textRestart.draw(batch, "Toque para reiniciar", widthDevice / 2 - 140, heightDevice / 2 -  gameOver.getHeight() / 2);
-			textBestPoint.draw(batch, "Seu record é: 0 pontos", widthDevice / 2 - 140, heightDevice / 2 -  gameOver.getHeight());
+			textBestPoint.draw(batch, "Seu record é: "+ pointMax +"  pontos", widthDevice / 2 - 140, heightDevice / 2 -  gameOver.getHeight());
 		}
 
 		batch.end();
@@ -112,18 +118,26 @@ public class Game extends ApplicationAdapter {
 
 		} else if (stateGame == 2){
 
+			if(point > pointMax){
+				pointMax = point;
+				preferences.putInteger("pointMax", pointMax);
+			}
+
+			positionHorizontalBird -= Gdx.graphics.getDeltaTime() * 500;
+
 			if(touchScreen){
 				stateGame = 0;
 				point = 0;
 				gravity = 0;
 				initialPositionBird = heightDevice / 2;
 				positionPipeHorizontal = widthDevice;
+				positionHorizontalBird = 0;
 			}
 		}
 	}
 
 	private void detectarColisoes(){
-		circleBird.set(widthDevice / 5 + birds[0].getWidth() / 2, initialPositionBird + birds[0].getHeight() / 2, birds[0].getWidth() / 2);
+		circleBird.set(100 + positionHorizontalBird + birds[0].getWidth() / 2, initialPositionBird + birds[0].getHeight() / 2, birds[0].getWidth() / 2);
 		rectangleDown.set(positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical), lowBarrel.getWidth(), lowBarrel.getHeight());
 		rectangleUp.set(positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical), upBarrel.getWidth(), upBarrel.getHeight());
 
@@ -131,7 +145,10 @@ public class Game extends ApplicationAdapter {
 		boolean collisionPipeDown = Intersector.overlaps(circleBird, rectangleDown);
 
 		if(collisionPipeUp || collisionPipeDown){
-			stateGame = 2;
+			if(stateGame == 1){
+				soundColisition.play();
+				stateGame = 2;
+			}
 		}
 
 		/*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -206,6 +223,10 @@ public class Game extends ApplicationAdapter {
 		soundFly = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
 		soundColisition = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
 		soundPoint = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
+
+		preferences = Gdx.app.getPreferences("flappyBird");
+
+		pointMax = preferences.getInteger("pointMax", 0);
 	}
 	
 	@Override
