@@ -2,6 +2,7 @@ package com.andrez.flappybird;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -47,6 +48,10 @@ public class Game extends ApplicationAdapter {
 
 	private int stateGame = 0;
 
+	Sound soundFly;
+	Sound soundColisition;
+	Sound soundPoint;
+
 	@Override
 	public void create () {
 		startTexture();
@@ -81,14 +86,18 @@ public class Game extends ApplicationAdapter {
 
 	private void validateStateGame(){
 
+		boolean touchScreen = Gdx.input.justTouched();
+
+		if(touchScreen) soundFly.play();
+
 		if(stateGame == 0){
-			if(Gdx.input.justTouched()){
+			if(touchScreen){
 				gravity = -16;
 				stateGame = 1;
 			};
 
 		} else if (stateGame == 1){
-			if(Gdx.input.justTouched()) gravity = -16;
+			if(touchScreen) gravity = -16;
 
 			positionPipeHorizontal -= Gdx.graphics.getDeltaTime() * 400;
 			if(positionPipeHorizontal < -lowBarrel.getWidth()){
@@ -103,10 +112,14 @@ public class Game extends ApplicationAdapter {
 
 		} else if (stateGame == 2){
 
+			if(touchScreen){
+				stateGame = 0;
+				point = 0;
+				gravity = 0;
+				initialPositionBird = heightDevice / 2;
+				positionPipeHorizontal = widthDevice;
+			}
 		}
-
-
-
 	}
 
 	private void detectarColisoes(){
@@ -139,6 +152,7 @@ public class Game extends ApplicationAdapter {
 			if(!passedPipe){
 				point++;
 				passedPipe = true;
+				soundPoint.play();
 			}
 		}
 
@@ -188,6 +202,10 @@ public class Game extends ApplicationAdapter {
 		textBestPoint = new BitmapFont();
 		textBestPoint.setColor(Color.RED);
 		textBestPoint.getData().setScale(2);
+
+		soundFly = Gdx.audio.newSound(Gdx.files.internal("som_asa.wav"));
+		soundColisition = Gdx.audio.newSound(Gdx.files.internal("som_batida.wav"));
+		soundPoint = Gdx.audio.newSound(Gdx.files.internal("som_pontos.wav"));
 	}
 	
 	@Override
