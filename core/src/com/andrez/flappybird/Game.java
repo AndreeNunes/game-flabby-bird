@@ -42,6 +42,8 @@ public class Game extends ApplicationAdapter {
 	private int point = 0;
 	private boolean passedPipe = false;
 
+	private int stateGame = 0;
+
 	@Override
 	public void create () {
 		startTexture();
@@ -68,22 +70,33 @@ public class Game extends ApplicationAdapter {
 	}
 
 	private void validateStateGame(){
-		positionPipeHorizontal -= Gdx.graphics.getDeltaTime() * 400;
-		if(positionPipeHorizontal < -lowBarrel.getWidth()){
-			positionPipeHorizontal = widthDevice;
-			positionPipeVertical = random.nextInt(1200) - 400;
-			passedPipe = false;
+
+		if(stateGame == 0){
+			if(Gdx.input.justTouched()){
+				gravity = -16;
+				stateGame = 1;
+			};
+
+		} else if (stateGame == 1){
+			if(Gdx.input.justTouched()) gravity = -16;
+
+			positionPipeHorizontal -= Gdx.graphics.getDeltaTime() * 400;
+			if(positionPipeHorizontal < -lowBarrel.getWidth()){
+				positionPipeHorizontal = widthDevice;
+				positionPipeVertical = random.nextInt(1200) - 400;
+				passedPipe = false;
+			}
+
+			if(initialPositionBird >= 0 || gravity < 0) initialPositionBird = initialPositionBird - gravity;
+
+			gravity++;
+
+		} else if (stateGame == 2){
+			
 		}
 
-		if(Gdx.input.justTouched()) gravity = -16;
 
-		if(initialPositionBird >= 0 || gravity < 0) initialPositionBird = initialPositionBird - gravity;
 
-		variation += Gdx.graphics.getDeltaTime() * 10;
-
-		if(variation > 3) variation = 0;
-
-		gravity++;
 	}
 
 	private void detectarColisoes(){
@@ -95,7 +108,7 @@ public class Game extends ApplicationAdapter {
 		boolean collisionPipeDown = Intersector.overlaps(circleBird, rectangleDown);
 
 		if(collisionPipeUp || collisionPipeDown){
-			
+			stateGame = 2;
 		}
 
 		/*shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -118,6 +131,10 @@ public class Game extends ApplicationAdapter {
 				passedPipe = true;
 			}
 		}
+
+		variation += Gdx.graphics.getDeltaTime() * 10;
+
+		if(variation > 3) variation = 0;
 	}
 
 	private void startTexture(){
