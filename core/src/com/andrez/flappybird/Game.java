@@ -2,8 +2,13 @@ package com.andrez.flappybird;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.Random;
@@ -18,6 +23,11 @@ public class Game extends ApplicationAdapter {
 	private Texture lowBarrel;
 	private Texture upBarrel;
 
+	private ShapeRenderer shapeRenderer;
+	private Circle circleBird;
+	private Rectangle rectangleUp;
+	private Rectangle rectangleDown;
+
 	private float widthDevice;
 	private float heightDevice;
 	private float variation = 0;
@@ -27,6 +37,9 @@ public class Game extends ApplicationAdapter {
 	private float positionPipeVertical;
 	private float spaceBetweenPipes;
 	private Random random;
+	BitmapFont pointText;
+	private int point = 0;
+	private boolean passedPipe = false;
 
 	@Override
 	public void create () {
@@ -37,29 +50,31 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
 		validateStateGame();
+		validatePoint();
 		paintTexture();
+		detectarColisoes();
 	}
 
 	private void paintTexture(){
 		batch.begin();
 
 		batch.draw(background, 0, 0, widthDevice, heightDevice);
-		batch.draw(birds[(int) variation], 90, initialPositionBird);
+		batch.draw(birds[(int) variation], widthDevice / 5, initialPositionBird);
 		batch.draw(lowBarrel, positionPipeHorizontal, (heightDevice / 2 - lowBarrel.getHeight() - spaceBetweenPipes / 2 + positionPipeVertical));
 		batch.draw(upBarrel, positionPipeHorizontal, (heightDevice / 2  + spaceBetweenPipes / 2 + positionPipeVertical));
-
+		pointText.draw(batch, String.valueOf(point), widthDevice / 2, heightDevice - 110);
 		batch.end();
 	}
 
 	private void validateStateGame(){
-
-		positionPipeHorizontal -= Gdx.graphics.getDeltaTime() * 200;
+		positionPipeHorizontal -= Gdx.graphics.getDeltaTime() * 400;
 		if(positionPipeHorizontal < -lowBarrel.getWidth()){
 			positionPipeHorizontal = widthDevice;
-			positionPipeVertical = random.nextInt(800) -200;
+			positionPipeVertical = random.nextInt(1200) - 400;
+			passedPipe = false;
 		}
 
-		if(Gdx.input.justTouched()) gravity = -20;
+		if(Gdx.input.justTouched()) gravity = -16;
 
 		if(initialPositionBird >= 0 || gravity < 0) initialPositionBird = initialPositionBird - gravity;
 
@@ -68,6 +83,28 @@ public class Game extends ApplicationAdapter {
 		if(variation > 3) variation = 0;
 
 		gravity++;
+	}
+
+	private void detectarColisoes(){
+		//circleBird
+		//rectangleDown
+		//rectangleUp
+
+
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.setColor(Color.RED);
+		shapeRenderer.circle(widthDevice / 5, initialPositionBird, birds[0].getWidth() / 2);
+
+		shapeRenderer.end();
+	}
+
+	private void validatePoint(){
+		if(positionPipeHorizontal < 90){
+			if(!passedPipe){
+				point++;
+				passedPipe = true;
+			}
+		}
 	}
 
 	private void startTexture(){
@@ -91,7 +128,17 @@ public class Game extends ApplicationAdapter {
 		initialPositionBird = heightDevice / 2;
 		positionPipeHorizontal = widthDevice;
 
-		spaceBetweenPipes = 250;
+		spaceBetweenPipes = 230;
+
+		pointText = new BitmapFont();
+		pointText.setColor(Color.WHITE);
+		pointText.getData().setScale(10);
+
+		shapeRenderer = new ShapeRenderer();
+		circleBird = new Circle();
+		rectangleUp = new Rectangle();
+		rectangleDown = new Rectangle();
+
 	}
 	
 	@Override
